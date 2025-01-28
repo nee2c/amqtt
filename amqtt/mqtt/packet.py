@@ -61,9 +61,7 @@ class MQTTFixedHeader:
             packet_type = (self.packet_type << 4) | self.flags
             out.append(packet_type)
         except OverflowError:
-            raise CodecException(
-                "packet_type encoding exceed 1 byte length: value=%d", packet_type
-            )
+            raise CodecException("packet_type encoding exceed 1 byte length: value=%d", packet_type)
 
         encoded_length = encode_remaining_length(self.remaining_length)
         out.extend(encoded_length)
@@ -103,8 +101,7 @@ class MQTTFixedHeader:
                     multiplier *= 128
                     if multiplier > 128 * 128 * 128:
                         raise MQTTException(
-                            "Invalid remaining length bytes:%s, packet_type=%d"
-                            % (bytes_to_hex_str(buffer), msg_type)
+                            "Invalid remaining length bytes:%s, packet_type=%d" % (bytes_to_hex_str(buffer), msg_type)
                         )
             return value
 
@@ -120,9 +117,7 @@ class MQTTFixedHeader:
             return None
 
     def __repr__(self):
-        return type(self).__name__ + "(length={}, flags={})".format(
-            self.remaining_length, hex(self.flags)
-        )
+        return type(self).__name__ + "(length={}, flags={})".format(self.remaining_length, hex(self.flags))
 
 
 class MQTTVariableHeader:
@@ -144,9 +139,7 @@ class MQTTVariableHeader:
         return len(self.to_bytes())
 
     @classmethod
-    async def from_stream(
-        cls, reader: asyncio.StreamReader, fixed_header: MQTTFixedHeader
-    ):
+    async def from_stream(cls, reader: asyncio.StreamReader, fixed_header: MQTTFixedHeader):
         pass
 
 
@@ -180,9 +173,7 @@ class MQTTPayload:
         writer.write(self.to_bytes())
         await writer.drain()
 
-    def to_bytes(
-        self, fixed_header: MQTTFixedHeader, variable_header: MQTTVariableHeader
-    ):
+    def to_bytes(self, fixed_header: MQTTFixedHeader, variable_header: MQTTVariableHeader):
         pass
 
     @classmethod
@@ -225,36 +216,26 @@ class MQTTPacket:
         else:
             variable_header_bytes = b""
         if self.payload:
-            payload_bytes = self.payload.to_bytes(
-                self.fixed_header, self.variable_header
-            )
+            payload_bytes = self.payload.to_bytes(self.fixed_header, self.variable_header)
         else:
             payload_bytes = b""
 
-        self.fixed_header.remaining_length = len(variable_header_bytes) + len(
-            payload_bytes
-        )
+        self.fixed_header.remaining_length = len(variable_header_bytes) + len(payload_bytes)
         fixed_header_bytes = self.fixed_header.to_bytes()
 
         return fixed_header_bytes + variable_header_bytes + payload_bytes
 
     @classmethod
-    async def from_stream(
-        cls, reader: ReaderAdapter, fixed_header=None, variable_header=None
-    ):
+    async def from_stream(cls, reader: ReaderAdapter, fixed_header=None, variable_header=None):
         if fixed_header is None:
             fixed_header = await cls.FIXED_HEADER.from_stream(reader)
         if cls.VARIABLE_HEADER:
             if variable_header is None:
-                variable_header = await cls.VARIABLE_HEADER.from_stream(
-                    reader, fixed_header
-                )
+                variable_header = await cls.VARIABLE_HEADER.from_stream(reader, fixed_header)
         else:
             variable_header = None
         if cls.PAYLOAD:
-            payload = await cls.PAYLOAD.from_stream(
-                reader, fixed_header, variable_header
-            )
+            payload = await cls.PAYLOAD.from_stream(reader, fixed_header, variable_header)
         else:
             payload = None
 
@@ -272,8 +253,6 @@ class MQTTPacket:
         return len(self.to_bytes())
 
     def __repr__(self):
-        return type(
-            self
-        ).__name__ + "(ts={!s}, fixed={!r}, variable={!r}, payload={!r})".format(
+        return type(self).__name__ + "(ts={!s}, fixed={!r}, variable={!r}, payload={!r})".format(
             self.protocol_ts, self.fixed_header, self.variable_header, self.payload
         )

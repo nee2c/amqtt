@@ -10,9 +10,7 @@ import sqlite3
 from amqtt.plugins.manager import BaseContext
 from amqtt.plugins.persistence import SQLitePlugin
 
-formatter = (
-    "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-)
+formatter = "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=formatter)
 
 

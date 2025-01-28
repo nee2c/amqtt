@@ -14,9 +14,7 @@ from amqtt.client import MQTTClient, ConnectException
 from amqtt.broker import Broker
 from amqtt.mqtt.constants import QOS_0, QOS_1, QOS_2
 
-formatter = (
-    "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-)
+formatter = "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.ERROR, format=formatter)
 log = logging.getLogger(__name__)
 
@@ -258,9 +256,7 @@ async def test_cancel_publish_qos2_pubrec():
     assert client_pub.session.inflight_out_count == 0
     fut = asyncio.create_task(client_pub.publish("test_topic", data, QOS_2))
     assert len(client_pub._handler._pubrec_waiters) == 0
-    while (
-        len(client_pub._handler._pubrec_waiters) == 0 or fut.done() or fut.cancelled()
-    ):
+    while len(client_pub._handler._pubrec_waiters) == 0 or fut.done() or fut.cancelled():
         await asyncio.sleep(0)
     assert len(client_pub._handler._pubrec_waiters) == 1
     assert client_pub.session.inflight_out_count == 1

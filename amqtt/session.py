@@ -12,7 +12,6 @@ INCOMING = 1
 
 
 class ApplicationMessage:
-
     """
     ApplicationMessage and subclasses are used to store published message information flow. These objects can contain different information depending on the way they were created (incoming or outgoing) and the quality of service used between peers.
     """
@@ -68,16 +67,13 @@ class ApplicationMessage:
         :param dup: force dup flag
         :return: :class:`amqtt.mqtt.publish.PublishPacket` built from ApplicationMessage instance attributes
         """
-        return PublishPacket.build(
-            self.topic, self.data, self.packet_id, dup, self.qos, self.retain
-        )
+        return PublishPacket.build(self.topic, self.data, self.packet_id, dup, self.qos, self.retain)
 
     def __eq__(self, other):
         return self.packet_id == other.packet_id
 
 
 class IncomingApplicationMessage(ApplicationMessage):
-
     """
     Incoming :class:`~amqtt.session.ApplicationMessage`.
     """
@@ -90,7 +86,6 @@ class IncomingApplicationMessage(ApplicationMessage):
 
 
 class OutgoingApplicationMessage(ApplicationMessage):
-
     """
     Outgoing :class:`~amqtt.session.ApplicationMessage`.
     """
@@ -141,34 +136,20 @@ class Session:
 
     def _init_states(self):
         self.transitions = Machine(states=Session.states, initial="new")
-        self.transitions.add_transition(
-            trigger="connect", source="new", dest="connected"
-        )
-        self.transitions.add_transition(
-            trigger="connect", source="disconnected", dest="connected"
-        )
-        self.transitions.add_transition(
-            trigger="disconnect", source="connected", dest="disconnected"
-        )
-        self.transitions.add_transition(
-            trigger="disconnect", source="new", dest="disconnected"
-        )
-        self.transitions.add_transition(
-            trigger="disconnect", source="disconnected", dest="disconnected"
-        )
+        self.transitions.add_transition(trigger="connect", source="new", dest="connected")
+        self.transitions.add_transition(trigger="connect", source="disconnected", dest="connected")
+        self.transitions.add_transition(trigger="disconnect", source="connected", dest="disconnected")
+        self.transitions.add_transition(trigger="disconnect", source="new", dest="disconnected")
+        self.transitions.add_transition(trigger="disconnect", source="disconnected", dest="disconnected")
 
     @property
     def next_packet_id(self):
         self._packet_id = (self._packet_id % 65535) + 1
         limit = self._packet_id
-        while (
-            self._packet_id in self.inflight_in or self._packet_id in self.inflight_out
-        ):
+        while self._packet_id in self.inflight_in or self._packet_id in self.inflight_out:
             self._packet_id = (self._packet_id % 65535) + 1
             if self._packet_id == limit:
-                raise AMQTTException(
-                    "More than 65535 messages pending. No free packet ID"
-                )
+                raise AMQTTException("More than 65535 messages pending. No free packet ID")
 
         return self._packet_id
 
@@ -185,9 +166,7 @@ class Session:
         return self.retained_messages.qsize()
 
     def __repr__(self):
-        return type(self).__name__ + "(clientId={}, state={})".format(
-            self.client_id, self.transitions.state
-        )
+        return type(self).__name__ + "(clientId={}, state={})".format(self.client_id, self.transitions.state)
 
     def __getstate__(self):
         state = self.__dict__.copy()

@@ -10,9 +10,7 @@ from amqtt.plugins.manager import BaseContext
 from amqtt.plugins.authentication import AnonymousAuthPlugin, FileAuthPlugin
 from amqtt.session import Session
 
-formatter = (
-    "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-)
+formatter = "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=formatter)
 
 
@@ -59,11 +57,7 @@ class TestFileAuthPlugin(unittest.TestCase):
         context = BaseContext()
         context.logger = logging.getLogger(__name__)
         context.config = {
-            "auth": {
-                "password-file": os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)), "passwd"
-                )
-            }
+            "auth": {"password-file": os.path.join(os.path.dirname(os.path.realpath(__file__)), "passwd")}
         }
         s = Session()
         s.username = "user"
@@ -76,11 +70,7 @@ class TestFileAuthPlugin(unittest.TestCase):
         context = BaseContext()
         context.logger = logging.getLogger(__name__)
         context.config = {
-            "auth": {
-                "password-file": os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)), "passwd"
-                )
-            }
+            "auth": {"password-file": os.path.join(os.path.dirname(os.path.realpath(__file__)), "passwd")}
         }
         s = Session()
         s.username = "user"
@@ -93,11 +83,7 @@ class TestFileAuthPlugin(unittest.TestCase):
         context = BaseContext()
         context.logger = logging.getLogger(__name__)
         context.config = {
-            "auth": {
-                "password-file": os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)), "passwd"
-                )
-            }
+            "auth": {"password-file": os.path.join(os.path.dirname(os.path.realpath(__file__)), "passwd")}
         }
         s = Session()
         s.username = "some user"

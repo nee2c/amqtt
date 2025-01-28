@@ -78,10 +78,7 @@ class ConnackPacket(MQTTPacket):
             header = MQTTFixedHeader(CONNACK, 0x00)
         else:
             if fixed.packet_type is not CONNACK:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for ConnackPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for ConnackPacket init" % fixed.packet_type)
             header = fixed
         super().__init__(header)
         self.variable_header = variable_header

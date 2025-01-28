@@ -31,10 +31,7 @@ class PubackPacket(MQTTPacket):
             header = MQTTFixedHeader(PUBACK, 0x00)
         else:
             if fixed.packet_type is not PUBACK:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for PubackPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for PubackPacket init" % fixed.packet_type)
             header = fixed
         super().__init__(header)
         self.variable_header = variable_header

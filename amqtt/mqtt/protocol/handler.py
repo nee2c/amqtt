@@ -68,9 +68,7 @@ class ProtocolHandler:
     Class implementing the MQTT communication protocol using asyncio features
     """
 
-    def __init__(
-        self, plugins_manager: PluginManager, session: Session = None, loop=None
-    ):
+    def __init__(self, plugins_manager: PluginManager, session: Session = None, loop=None):
         self.logger = logging.getLogger(__name__)
         if session:
             self._init_session(session)
@@ -130,9 +128,7 @@ class ProtocolHandler:
         self._reader_task = asyncio.Task(self._reader_loop())
         await self._reader_ready.wait()
         if self.keepalive_timeout:
-            self._keepalive_task = self._loop.call_later(
-                self.keepalive_timeout, self.handle_write_timeout
-            )
+            self._keepalive_task = self._loop.call_later(self.keepalive_timeout, self.handle_write_timeout)
 
         self.logger.debug("Handler tasks started")
         await self._retry_deliveries()
@@ -173,20 +169,12 @@ class ProtocolHandler:
         """
         self.logger.debug("Begin messages delivery retries")
         tasks = []
-        for message in itertools.chain(
-            self.session.inflight_in.values(), self.session.inflight_out.values()
-        ):
-            tasks.append(
-                asyncio.create_task(
-                    asyncio.wait_for(self._handle_message_flow(message), 10)
-                )
-            )
+        for message in itertools.chain(self.session.inflight_in.values(), self.session.inflight_out.values()):
+            tasks.append(asyncio.create_task(asyncio.wait_for(self._handle_message_flow(message), 10)))
         if tasks:
             done, pending = await asyncio.wait(tasks)
             self.logger.debug("%d messages redelivered" % len(done))
-            self.logger.debug(
-                "%d messages not redelivered due to timeout" % len(pending)
-            )
+            self.logger.debug("%d messages not redelivered due to timeout" % len(pending))
         self.logger.debug("End messages delivery retries")
 
     async def mqtt_publish(self, topic, data, qos, retain, ack_timeout=None):
@@ -204,10 +192,7 @@ class ProtocolHandler:
         if qos in (QOS_1, QOS_2):
             packet_id = self.session.next_packet_id
             if packet_id in self.session.inflight_out:
-                raise AMQTTException(
-                    "A message with the same packet ID '%d' is already in flight"
-                    % packet_id
-                )
+                raise AMQTTException("A message with the same packet ID '%d' is already in flight" % packet_id)
         else:
             packet_id = None
 
@@ -260,9 +245,7 @@ class ProtocolHandler:
                 try:
                     self.session.delivered_message_queue.put_nowait(app_message)
                 except:
-                    self.logger.warning(
-                        "delivered messages queue full. QOS_0 message discarded"
-                    )
+                    self.logger.warning("delivered messages queue full. QOS_0 message discarded")
 
     async def _handle_qos1_message_flow(self, app_message):
         """
@@ -274,9 +257,7 @@ class ProtocolHandler:
         """
         assert app_message.qos == QOS_1
         if app_message.puback_packet:
-            raise AMQTTException(
-                "Message '%d' has already been acknowledged" % app_message.packet_id
-            )
+            raise AMQTTException("Message '%d' has already been acknowledged" % app_message.packet_id)
         if app_message.direction == OUTGOING:
             if app_message.packet_id not in self.session.inflight_out:
                 # Store message in session
@@ -321,18 +302,13 @@ class ProtocolHandler:
         assert app_message.qos == QOS_2
         if app_message.direction == OUTGOING:
             if app_message.pubrel_packet and app_message.pubcomp_packet:
-                raise AMQTTException(
-                    "Message '%d' has already been acknowledged" % app_message.packet_id
-                )
+                raise AMQTTException("Message '%d' has already been acknowledged" % app_message.packet_id)
             if not app_message.pubrel_packet:
                 # Store message
                 if app_message.publish_packet is not None:
                     # This is a retry flow, no need to store just check the message exists in session
                     if app_message.packet_id not in self.session.inflight_out:
-                        raise AMQTTException(
-                            "Unknown inflight message '%d' in session"
-                            % app_message.packet_id
-                        )
+                        raise AMQTTException("Unknown inflight message '%d' in session" % app_message.packet_id)
                     publish_packet = app_message.build_publish_packet(dup=True)
                 else:
                     # Store message in session
@@ -345,8 +321,7 @@ class ProtocolHandler:
                 if app_message.packet_id in self._pubrec_waiters:
                     # PUBREC waiter already exists for this packet ID
                     message = (
-                        "Can't add PUBREC waiter, a waiter already exists for message Id '%s'"
-                        % app_message.packet_id
+                        "Can't add PUBREC waiter, a waiter already exists for message Id '%s'" % app_message.packet_id
                     )
                     self.logger.warning(message)
                     raise AMQTTException(message)
@@ -376,15 +351,9 @@ class ProtocolHandler:
             await self._send_packet(pubrec_packet)
             app_message.pubrec_packet = pubrec_packet
             # Wait PUBREL
-            if (
-                app_message.packet_id in self._pubrel_waiters
-                and not self._pubrel_waiters[app_message.packet_id].done()
-            ):
+            if app_message.packet_id in self._pubrel_waiters and not self._pubrel_waiters[app_message.packet_id].done():
                 # PUBREL waiter already exists for this packet ID
-                message = (
-                    "A waiter already exists for message Id '%s', canceling it"
-                    % app_message.packet_id
-                )
+                message = "A waiter already exists for message Id '%s', canceling it" % app_message.packet_id
                 self.logger.warning(message)
                 self._pubrel_waiters[app_message.packet_id].cancel()
             try:
@@ -422,10 +391,7 @@ class ProtocolHandler:
                     keepalive_timeout,
                 )
                 if fixed_header:
-                    if (
-                        fixed_header.packet_type == RESERVED_0
-                        or fixed_header.packet_type == RESERVED_15
-                    ):
+                    if fixed_header.packet_type == RESERVED_0 or fixed_header.packet_type == RESERVED_15:
                         self.logger.warning(
                             "%s Received reserved packet, which is forbidden: closing connection"
                             % (self.session.client_id)
@@ -433,9 +399,7 @@ class ProtocolHandler:
                         await self.handle_connection_closed()
                     else:
                         cls = packet_class(fixed_header)
-                        packet = await cls.from_stream(
-                            self.reader, fixed_header=fixed_header
-                        )
+                        packet = await cls.from_stream(self.reader, fixed_header=fixed_header)
                         await self.plugins_manager.fire_event(
                             EVENT_MQTT_PACKET_RECEIVED,
                             packet=packet,
@@ -447,9 +411,7 @@ class ProtocolHandler:
                         elif packet.fixed_header.packet_type == SUBSCRIBE:
                             task = asyncio.ensure_future(self.handle_subscribe(packet))
                         elif packet.fixed_header.packet_type == UNSUBSCRIBE:
-                            task = asyncio.ensure_future(
-                                self.handle_unsubscribe(packet)
-                            )
+                            task = asyncio.ensure_future(self.handle_unsubscribe(packet))
                         elif packet.fixed_header.packet_type == SUBACK:
                             task = asyncio.ensure_future(self.handle_suback(packet))
                         elif packet.fixed_header.packet_type == UNSUBACK:
@@ -483,10 +445,7 @@ class ProtocolHandler:
                         if task:
                             running_tasks.append(task)
                 else:
-                    self.logger.debug(
-                        "%s No more data (EOF received), stopping reader coro"
-                        % self.session.client_id
-                    )
+                    self.logger.debug("%s No more data (EOF received), stopping reader coro" % self.session.client_id)
                     break
             except MQTTException:
                 self.logger.debug("Message discarded")
@@ -494,17 +453,12 @@ class ProtocolHandler:
                 self.logger.debug("Task cancelled, reader loop ending")
                 break
             except asyncio.TimeoutError:
-                self.logger.debug(
-                    "%s Input stream read timeout" % self.session.client_id
-                )
+                self.logger.debug("%s Input stream read timeout" % self.session.client_id)
                 self.handle_read_timeout()
             except NoDataException:
                 self.logger.debug("%s No data available" % self.session.client_id)
             except Exception as e:
-                self.logger.warning(
-                    "%s Unhandled exception in reader coro: %r"
-                    % (type(self).__name__, e)
-                )
+                self.logger.warning("%s Unhandled exception in reader coro: %r" % (type(self).__name__, e))
                 break
         while running_tasks:
             running_tasks.popleft().cancel()
@@ -519,13 +473,9 @@ class ProtocolHandler:
                 await packet.to_stream(self.writer)
             if self._keepalive_task:
                 self._keepalive_task.cancel()
-                self._keepalive_task = self._loop.call_later(
-                    self.keepalive_timeout, self.handle_write_timeout
-                )
+                self._keepalive_task = self._loop.call_later(self.keepalive_timeout, self.handle_write_timeout)
 
-            await self.plugins_manager.fire_event(
-                EVENT_MQTT_PACKET_SENT, packet=packet, session=self.session
-            )
+            await self.plugins_manager.fire_event(EVENT_MQTT_PACKET_SENT, packet=packet, session=self.session)
         except (ConnectionResetError, BrokenPipeError):
             await self.handle_connection_closed()
         except asyncio.CancelledError:
@@ -538,10 +488,7 @@ class ProtocolHandler:
         if not self._is_attached():
             return None
         if self.logger.isEnabledFor(logging.DEBUG):
-            self.logger.debug(
-                "%d message(s) available for delivery"
-                % self.session.delivered_message_queue.qsize()
-            )
+            self.logger.debug("%d message(s) available for delivery" % self.session.delivered_message_queue.qsize())
         try:
             message = await self.session.delivered_message_queue.get()
         except asyncio.CancelledError:
@@ -592,9 +539,7 @@ class ProtocolHandler:
             waiter = self._puback_waiters[packet_id]
             waiter.set_result(puback)
         except KeyError:
-            self.logger.warning(
-                "Received PUBACK for unknown pending message Id: '%d'" % packet_id
-            )
+            self.logger.warning("Received PUBACK for unknown pending message Id: '%d'" % packet_id)
         except InvalidStateError:
             self.logger.warning("PUBACK waiter with Id '%d' already done" % packet_id)
 
@@ -604,9 +549,7 @@ class ProtocolHandler:
             waiter = self._pubrec_waiters[packet_id]
             waiter.set_result(pubrec)
         except KeyError:
-            self.logger.warning(
-                "Received PUBREC for unknown pending message with Id: %d" % packet_id
-            )
+            self.logger.warning("Received PUBREC for unknown pending message with Id: %d" % packet_id)
         except InvalidStateError:
             self.logger.warning("PUBREC waiter with Id '%d' already done" % packet_id)
 
@@ -616,9 +559,7 @@ class ProtocolHandler:
             waiter = self._pubcomp_waiters[packet_id]
             waiter.set_result(pubcomp)
         except KeyError:
-            self.logger.warning(
-                "Received PUBCOMP for unknown pending message with Id: %d" % packet_id
-            )
+            self.logger.warning("Received PUBCOMP for unknown pending message with Id: %d" % packet_id)
         except InvalidStateError:
             self.logger.warning("PUBCOMP waiter with Id '%d' already done" % packet_id)
 
@@ -628,9 +569,7 @@ class ProtocolHandler:
             waiter = self._pubrel_waiters[packet_id]
             waiter.set_result(pubrel)
         except KeyError:
-            self.logger.warning(
-                "Received PUBREL for unknown pending message with Id: %d" % packet_id
-            )
+            self.logger.warning("Received PUBREL for unknown pending message with Id: %d" % packet_id)
         except InvalidStateError:
             self.logger.warning("PUBREL waiter with Id '%d' already done" % packet_id)
 
@@ -647,6 +586,4 @@ class ProtocolHandler:
         )
         incoming_message.publish_packet = publish_packet
         await self._handle_message_flow(incoming_message)
-        self.logger.debug(
-            "Message queue size: %d" % self.session.delivered_message_queue.qsize()
-        )
+        self.logger.debug("Message queue size: %d" % self.session.delivered_message_queue.qsize())

@@ -14,10 +14,7 @@ class DisconnectPacket(MQTTPacket):
             header = MQTTFixedHeader(DISCONNECT, 0x00)
         else:
             if fixed.packet_type is not DISCONNECT:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for DisconnectPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for DisconnectPacket init" % fixed.packet_type)
             header = fixed
         super().__init__(header)
         self.variable_header = None

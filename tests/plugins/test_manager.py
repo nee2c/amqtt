@@ -7,9 +7,7 @@ import asyncio
 
 from amqtt.plugins.manager import PluginManager
 
-formatter = (
-    "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-)
+formatter = "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=formatter)
 
 

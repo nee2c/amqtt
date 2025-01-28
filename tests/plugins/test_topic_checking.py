@@ -32,10 +32,7 @@ async def test_base_no_config(logdog):
     log_records = list(pile.drain(name="testlog"))
     assert len(log_records) == 2
     assert log_records[0].levelno == logging.WARN
-    assert (
-        log_records[0].message
-        == "'topic-check' section not found in context configuration"
-    )
+    assert log_records[0].message == "'topic-check' section not found in context configuration"
 
     assert log_records[1].levelno == logging.WARN
     assert log_records[1].message == "'auth' section not found in context configuration"
@@ -121,10 +118,7 @@ async def test_taboo_empty_config(logdog):
     log_records = list(pile.drain(name="testlog"))
     assert len(log_records) == 2
     assert log_records[0].levelno == logging.WARN
-    assert (
-        log_records[0].message
-        == "'topic-check' section not found in context configuration"
-    )
+    assert log_records[0].message == "'topic-check' section not found in context configuration"
     assert log_records[1].levelno == logging.WARN
     assert log_records[1].message == "'auth' section not found in context configuration"
 
@@ -143,9 +137,7 @@ async def test_taboo_disabled(logdog):
         session.username = "anybody"
 
         plugin = TopicTabooPlugin(context)
-        assert (
-            await plugin.topic_filtering(session=session, topic="not/prohibited")
-        ) is True
+        assert (await plugin.topic_filtering(session=session, topic="not/prohibited")) is True
 
     # Should NOT have printed warnings
     log_records = list(pile.drain(name="testlog"))
@@ -166,9 +158,7 @@ async def test_taboo_not_taboo_topic(logdog):
         session.username = "anybody"
 
         plugin = TopicTabooPlugin(context)
-        assert (
-            await plugin.topic_filtering(session=session, topic="not/prohibited")
-        ) is True
+        assert (await plugin.topic_filtering(session=session, topic="not/prohibited")) is True
 
     # Should NOT have printed warnings
     log_records = list(pile.drain(name="testlog"))
@@ -189,9 +179,7 @@ async def test_taboo_anon_taboo_topic(logdog):
         session.username = ""
 
         plugin = TopicTabooPlugin(context)
-        assert (
-            await plugin.topic_filtering(session=session, topic="prohibited")
-        ) is False
+        assert (await plugin.topic_filtering(session=session, topic="prohibited")) is False
 
     # Should NOT have printed warnings
     log_records = list(pile.drain(name="testlog"))
@@ -212,9 +200,7 @@ async def test_taboo_notadmin_taboo_topic(logdog):
         session.username = "notadmin"
 
         plugin = TopicTabooPlugin(context)
-        assert (
-            await plugin.topic_filtering(session=session, topic="prohibited")
-        ) is False
+        assert (await plugin.topic_filtering(session=session, topic="prohibited")) is False
 
     # Should NOT have printed warnings
     log_records = list(pile.drain(name="testlog"))
@@ -235,9 +221,7 @@ async def test_taboo_admin_taboo_topic(logdog):
         session.username = "admin"
 
         plugin = TopicTabooPlugin(context)
-        assert (
-            await plugin.topic_filtering(session=session, topic="prohibited")
-        ) is True
+        assert (await plugin.topic_filtering(session=session, topic="prohibited")) is True
 
     # Should NOT have printed warnings
     log_records = list(pile.drain(name="testlog"))
@@ -251,10 +235,7 @@ def test_topic_ac_not_match():
     """
     Test TopicAccessControlListPlugin.topic_ac returns false if topics do not match.
     """
-    assert (
-        TopicAccessControlListPlugin.topic_ac("a/topic/to/match", "a/topic/to/notmatch")
-        is False
-    )
+    assert TopicAccessControlListPlugin.topic_ac("a/topic/to/match", "a/topic/to/notmatch") is False
 
 
 def test_topic_ac_not_match_longer_acl():
@@ -282,24 +263,14 @@ def test_topic_ac_match_plus():
     """
     Test TopicAccessControlListPlugin.topic_ac correctly handles '+' wildcard.
     """
-    assert (
-        TopicAccessControlListPlugin.topic_ac(
-            "a/topic/anything/value", "a/topic/+/value"
-        )
-        is True
-    )
+    assert TopicAccessControlListPlugin.topic_ac("a/topic/anything/value", "a/topic/+/value") is True
 
 
 def test_topic_ac_match_hash():
     """
     Test TopicAccessControlListPlugin.topic_ac correctly handles '#' wildcard.
     """
-    assert (
-        TopicAccessControlListPlugin.topic_ac(
-            "topic/prefix/and/suffix", "topic/prefix/#"
-        )
-        is True
-    )
+    assert TopicAccessControlListPlugin.topic_ac("topic/prefix/and/suffix", "topic/prefix/#") is True
 
 
 @pytest.mark.asyncio
@@ -318,10 +289,7 @@ async def test_taclp_empty_config(logdog):
     # Should have printed a couple of warnings
     log_records = list(pile.drain(name="testlog"))
     assert len(log_records) == 2
-    assert (
-        log_records[0].message
-        == "'topic-check' section not found in context configuration"
-    )
+    assert log_records[0].message == "'topic-check' section not found in context configuration"
     assert log_records[1].message == "'auth' section not found in context configuration"
 
 
@@ -338,9 +306,7 @@ async def test_taclp_true_disabled(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.publish, session=session, topic="a/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.publish, session=session, topic="a/topic")
     assert authorised is True
 
 
@@ -358,9 +324,7 @@ async def test_taclp_true_no_pub_acl(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.publish, session=session, topic="a/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.publish, session=session, topic="a/topic")
     assert authorised is True
 
 
@@ -382,9 +346,7 @@ async def test_taclp_false_sub_no_topic(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.subscribe, session=session, topic=""
-    )
+    authorised = await plugin.topic_filtering(action=Action.subscribe, session=session, topic="")
     assert authorised is False
 
 
@@ -406,9 +368,7 @@ async def test_taclp_false_sub_unknown_user(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.subscribe, session=session, topic="allowed/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.subscribe, session=session, topic="allowed/topic")
     assert authorised is False
 
 
@@ -430,9 +390,7 @@ async def test_taclp_false_sub_no_permission(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.subscribe, session=session, topic="forbidden/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.subscribe, session=session, topic="forbidden/topic")
     assert authorised is False
 
 
@@ -454,9 +412,7 @@ async def test_taclp_true_sub_permission(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.subscribe, session=session, topic="allowed/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.subscribe, session=session, topic="allowed/topic")
     assert authorised is True
 
 
@@ -478,9 +434,7 @@ async def test_taclp_true_pub_permission(logdog):
     session.username = "user"
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.publish, session=session, topic="allowed/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.publish, session=session, topic="allowed/topic")
     assert authorised is True
 
 
@@ -502,7 +456,5 @@ async def test_taclp_true_anon_sub_permission(logdog):
     session.username = None
 
     plugin = TopicAccessControlListPlugin(context)
-    authorised = await plugin.topic_filtering(
-        action=Action.subscribe, session=session, topic="allowed/topic"
-    )
+    authorised = await plugin.topic_filtering(action=Action.subscribe, session=session, topic="allowed/topic")
     assert authorised is True

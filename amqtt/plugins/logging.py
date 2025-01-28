@@ -12,9 +12,7 @@ class EventLoggerPlugin:
         self.context = context
 
     async def log_event(self, *args, **kwargs):
-        self.context.logger.info(
-            "### '%s' EVENT FIRED ###" % kwargs["event_name"].replace("old", "")
-        )
+        self.context.logger.info("### '%s' EVENT FIRED ###" % kwargs["event_name"].replace("old", ""))
 
     def __getattr__(self, name):
         if name.startswith("on_"):
@@ -31,9 +29,7 @@ class PacketLoggerPlugin:
         session = kwargs.get("session", None)
         if self.context.logger.isEnabledFor(logging.DEBUG):
             if session:
-                self.context.logger.debug(
-                    "{} <-in-- {}".format(session.client_id, repr(packet))
-                )
+                self.context.logger.debug("{} <-in-- {}".format(session.client_id, repr(packet)))
             else:
                 self.context.logger.debug("<-in-- %s" % repr(packet))
 
@@ -42,8 +38,6 @@ class PacketLoggerPlugin:
         session = kwargs.get("session", None)
         if self.context.logger.isEnabledFor(logging.DEBUG):
             if session:
-                self.context.logger.debug(
-                    "{} -out-> {}".format(session.client_id, repr(packet))
-                )
+                self.context.logger.debug("{} -out-> {}".format(session.client_id, repr(packet)))
             else:
                 self.context.logger.debug("-out-> %s" % repr(packet))

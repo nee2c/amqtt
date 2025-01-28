@@ -25,9 +25,7 @@ test_config_acl = {
     "sys_interval": 0,
     "auth": {
         "plugins": ["auth_file"],
-        "password-file": os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "plugins", "passwd"
-        ),
+        "password-file": os.path.join(os.path.dirname(os.path.realpath(__file__)), "plugins", "passwd"),
     },
     "topic-check": {
         "enabled": True,
@@ -66,9 +64,7 @@ async def broker(mock_plugin_manager):
 
 @pytest.fixture(scope="function")
 async def acl_broker():
-    broker = amqtt.broker.Broker(
-        test_config_acl, plugin_namespace="amqtt.broker.plugins"
-    )
+    broker = amqtt.broker.Broker(test_config_acl, plugin_namespace="amqtt.broker.plugins")
     await broker.start()
     assert broker.transitions.is_started()
     assert broker._sessions == {}

@@ -16,9 +16,7 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def format_client_message(
-    session: Session = None, address: str = None, port: int = None
-) -> str:
+def format_client_message(session: Session = None, address: str = None, port: int = None) -> str:
     if session:
         return "(client id=%s)" % session.client_id
     elif address is not None and port is not None:

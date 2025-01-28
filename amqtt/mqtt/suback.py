@@ -30,9 +30,7 @@ class SubackPayload(MQTTPayload):
     def __repr__(self):
         return type(self).__name__ + "(return_codes={})".format(repr(self.return_codes))
 
-    def to_bytes(
-        self, fixed_header: MQTTFixedHeader, variable_header: MQTTVariableHeader
-    ):
+    def to_bytes(self, fixed_header: MQTTFixedHeader, variable_header: MQTTVariableHeader):
         out = b""
         for return_code in self.return_codes:
             out += int_to_bytes(return_code, 1)
@@ -71,10 +69,7 @@ class SubackPacket(MQTTPacket):
             header = MQTTFixedHeader(SUBACK, 0x00)
         else:
             if fixed.packet_type is not SUBACK:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for SubackPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for SubackPacket init" % fixed.packet_type)
             header = fixed
 
         super().__init__(header)

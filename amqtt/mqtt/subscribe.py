@@ -29,9 +29,7 @@ class SubscribePayload(MQTTPayload):
         super().__init__()
         self.topics = topics or []
 
-    def to_bytes(
-        self, fixed_header: MQTTFixedHeader, variable_header: MQTTVariableHeader
-    ):
+    def to_bytes(self, fixed_header: MQTTFixedHeader, variable_header: MQTTVariableHeader):
         out = b""
         for topic in self.topics:
             out += encode_string(topic[0])
@@ -77,10 +75,7 @@ class SubscribePacket(MQTTPacket):
             header = MQTTFixedHeader(SUBSCRIBE, 0x02)  # [MQTT-3.8.1-1]
         else:
             if fixed.packet_type is not SUBSCRIBE:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for SubscribePacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for SubscribePacket init" % fixed.packet_type)
             header = fixed
 
         super().__init__(header)

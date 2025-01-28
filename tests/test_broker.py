@@ -37,9 +37,7 @@ from amqtt.mqtt.constants import QOS_0, QOS_1, QOS_2
 from amqtt.mqtt.protocol.broker_handler import BrokerProtocolHandler
 
 
-formatter = (
-    "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-)
+formatter = "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=formatter)
 log = logging.getLogger(__name__)
 
@@ -86,12 +84,8 @@ async def test_client_connect(broker, mock_plugin_manager):
 
     mock_plugin_manager.assert_has_calls(
         [
-            call().fire_event(
-                EVENT_BROKER_CLIENT_CONNECTED, client_id=client.session.client_id
-            ),
-            call().fire_event(
-                EVENT_BROKER_CLIENT_DISCONNECTED, client_id=client.session.client_id
-            ),
+            call().fire_event(EVENT_BROKER_CLIENT_CONNECTED, client_id=client.session.client_id),
+            call().fire_event(EVENT_BROKER_CLIENT_DISCONNECTED, client_id=client.session.client_id),
         ],
         any_order=True,
     )
@@ -101,9 +95,7 @@ async def test_client_connect(broker, mock_plugin_manager):
 async def test_connect_tcp(broker):
     process = psutil.Process()
     connections_number = 10
-    sockets = [
-        socket.create_connection(("127.0.0.1", 1883)) for _ in range(connections_number)
-    ]
+    sockets = [socket.create_connection(("127.0.0.1", 1883)) for _ in range(connections_number)]
     connections = process.connections()
     await asyncio.sleep(0.1)
 
@@ -450,9 +442,7 @@ async def test_client_publish_big(broker, mock_plugin_manager):
     ret = await pub_client.connect("mqtt://127.0.0.1/")
     assert ret == 0
 
-    ret_message = await pub_client.publish(
-        "/topic", bytearray(b"\x99" * 256 * 1024), QOS_2
-    )
+    ret_message = await pub_client.publish("/topic", bytearray(b"\x99" * 256 * 1024), QOS_2)
     await pub_client.disconnect()
     assert broker._retained_messages == {}
 
@@ -501,9 +491,7 @@ async def test_client_publish_retain_delete(broker):
 async def test_client_subscribe_publish(broker):
     sub_client = MQTTClient()
     await sub_client.connect("mqtt://127.0.0.1")
-    ret = await sub_client.subscribe(
-        [("/qos0", QOS_0), ("/qos1", QOS_1), ("/qos2", QOS_2)]
-    )
+    ret = await sub_client.subscribe([("/qos0", QOS_0), ("/qos1", QOS_1), ("/qos2", QOS_2)])
     assert ret == [QOS_0, QOS_1, QOS_2]
 
     await _client_publish("/qos0", b"data", QOS_0)
@@ -593,15 +581,11 @@ async def test_client_subscribe_publish_dollar_topic_2(broker):
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="see https://github.com/Yakifo/aio-amqtt/issues/16", strict=False
-)
+@pytest.mark.xfail(reason="see https://github.com/Yakifo/aio-amqtt/issues/16", strict=False)
 async def test_client_publish_retain_subscribe(broker):
     sub_client = MQTTClient()
     await sub_client.connect("mqtt://127.0.0.1", cleansession=False)
-    ret = await sub_client.subscribe(
-        [("/qos0", QOS_0), ("/qos1", QOS_1), ("/qos2", QOS_2)]
-    )
+    ret = await sub_client.subscribe([("/qos0", QOS_0), ("/qos1", QOS_1), ("/qos2", QOS_2)])
     assert ret == [QOS_0, QOS_1, QOS_2]
     await sub_client.disconnect()
     await asyncio.sleep(0.1)
@@ -678,9 +662,7 @@ async def test_broker_broadcast_cancellation(broker):
     await sub_client.connect("mqtt://127.0.0.1")
     await sub_client.subscribe([(topic, qos)])
 
-    with patch.object(
-        BrokerProtocolHandler, "mqtt_publish", side_effect=asyncio.CancelledError
-    ) as mocked_mqtt_publish:
+    with patch.object(BrokerProtocolHandler, "mqtt_publish", side_effect=asyncio.CancelledError) as mocked_mqtt_publish:
         await _client_publish(topic, data, qos)
 
         # Second publish triggers the awaiting of first `mqtt_publish` task

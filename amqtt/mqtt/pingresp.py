@@ -14,10 +14,7 @@ class PingRespPacket(MQTTPacket):
             header = MQTTFixedHeader(PINGRESP, 0x00)
         else:
             if fixed.packet_type is not PINGRESP:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for PingRespPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for PingRespPacket init" % fixed.packet_type)
             header = fixed
         super().__init__(header)
         self.variable_header = None

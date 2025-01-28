@@ -8,9 +8,7 @@ import amqtt
 
 
 def get_version():
-    warnings.warn(
-        "amqtt.version.get_version() is deprecated, use amqtt.__version__ instead"
-    )
+    warnings.warn("amqtt.version.get_version() is deprecated, use amqtt.__version__ instead")
     return amqtt.__version__
 
 

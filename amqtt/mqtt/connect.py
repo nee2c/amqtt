@@ -35,9 +35,7 @@ class ConnectVariableHeader(MQTTVariableHeader):
     CLEAN_SESSION_FLAG = 0x02
     RESERVED_FLAG = 0x01
 
-    def __init__(
-        self, connect_flags=0x00, keep_alive=0, proto_name="MQTT", proto_level=0x04
-    ):
+    def __init__(self, connect_flags=0x00, keep_alive=0, proto_name="MQTT", proto_level=0x04):
         super().__init__()
         self.proto_name = proto_name
         self.proto_level = proto_level
@@ -228,9 +226,7 @@ class ConnectPayload(MQTTPayload):
 
         return payload
 
-    def to_bytes(
-        self, fixed_header: MQTTFixedHeader, variable_header: ConnectVariableHeader
-    ):
+    def to_bytes(self, fixed_header: MQTTFixedHeader, variable_header: ConnectVariableHeader):
         out = bytearray()
         # Client identifier
         out.extend(encode_string(self.client_id))
@@ -390,10 +386,7 @@ class ConnectPacket(MQTTPacket):
             header = MQTTFixedHeader(CONNECT, 0x00)
         else:
             if fixed.packet_type is not CONNECT:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for ConnectPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for ConnectPacket init" % fixed.packet_type)
             header = fixed
         super().__init__(header)
         self.variable_header = vh

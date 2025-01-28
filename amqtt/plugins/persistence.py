@@ -15,9 +15,7 @@ class SQLitePlugin:
             self.persistence_config = self.context.config["persistence"]
             self.init_db()
         except KeyError:
-            self.context.logger.warning(
-                "'persistence' section not found in context configuration"
-            )
+            self.context.logger.warning("'persistence' section not found in context configuration")
 
     def init_db(self):
         self.db_file = self.persistence_config.get("file", None)
@@ -29,13 +27,9 @@ class SQLitePlugin:
                 self.cursor = self.conn.cursor()
                 self.context.logger.info("Database file '%s' opened" % self.db_file)
             except Exception as e:
-                self.context.logger.error(
-                    f"Error while initializing database '{self.db_file}' : {e}"
-                )
+                self.context.logger.error(f"Error while initializing database '{self.db_file}' : {e}")
         if self.cursor:
-            self.cursor.execute(
-                "CREATE TABLE IF NOT EXISTS session(client_id TEXT PRIMARY KEY, data BLOB)"
-            )
+            self.cursor.execute("CREATE TABLE IF NOT EXISTS session(client_id TEXT PRIMARY KEY, data BLOB)")
 
     async def save_session(self, session):
         if self.cursor:
@@ -51,9 +45,7 @@ class SQLitePlugin:
 
     async def find_session(self, client_id):
         if self.cursor:
-            row = self.cursor.execute(
-                "SELECT data FROM session where client_id=?", (client_id,)
-            ).fetchone()
+            row = self.cursor.execute("SELECT data FROM session where client_id=?", (client_id,)).fetchone()
             if row:
                 return pickle.loads(row[0])
             else:

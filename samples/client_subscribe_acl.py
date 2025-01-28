@@ -33,10 +33,7 @@ async def uptime_coro():
         for i in range(1, 100):
             message = await C.deliver_message()
             packet = message.publish_packet
-            print(
-                "%d: %s => %s"
-                % (i, packet.variable_header.topic_name, str(packet.payload.data))
-            )
+            print("%d: %s => %s" % (i, packet.variable_header.topic_name, str(packet.payload.data)))
         await C.unsubscribe(["$SYS/broker/uptime", "$SYS/broker/load/#"])
         logger.info("UnSubscribed")
         await C.disconnect()

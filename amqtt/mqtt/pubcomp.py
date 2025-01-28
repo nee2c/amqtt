@@ -31,10 +31,7 @@ class PubcompPacket(MQTTPacket):
             header = MQTTFixedHeader(PUBCOMP, 0x00)
         else:
             if fixed.packet_type is not PUBCOMP:
-                raise AMQTTException(
-                    "Invalid fixed packet type %s for PubcompPacket init"
-                    % fixed.packet_type
-                )
+                raise AMQTTException("Invalid fixed packet type %s for PubcompPacket init" % fixed.packet_type)
             header = fixed
         super().__init__(header)
         self.variable_header = variable_header

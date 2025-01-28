@@ -20,9 +20,7 @@ from amqtt.mqtt.pubrec import PubrecPacket
 from amqtt.mqtt.pubrel import PubrelPacket
 from amqtt.mqtt.pubcomp import PubcompPacket
 
-formatter = (
-    "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
-)
+formatter = "[%(asctime)s] %(name)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=formatter)
 log = logging.getLogger(__name__)
 
@@ -95,9 +93,7 @@ class ProtocolHandlerTest(unittest.TestCase):
                 handler = ProtocolHandler(self.plugin_manager)
                 handler.attach(s, reader_adapted, writer_adapted)
                 await self.start_handler(handler, s)
-                message = await handler.mqtt_publish(
-                    "/topic", b"test_data", QOS_0, False
-                )
+                message = await handler.mqtt_publish("/topic", b"test_data", QOS_0, False)
                 self.assertIsInstance(message, OutgoingApplicationMessage)
                 self.assertIsNotNone(message.publish_packet)
                 self.assertIsNone(message.puback_packet)
@@ -139,9 +135,7 @@ class ProtocolHandlerTest(unittest.TestCase):
                 self.handler = ProtocolHandler(self.plugin_manager)
                 self.handler.attach(self.session, reader_adapted, writer_adapted)
                 await self.start_handler(self.handler, self.session)
-                message = await self.handler.mqtt_publish(
-                    "/topic", b"test_data", QOS_1, False
-                )
+                message = await self.handler.mqtt_publish("/topic", b"test_data", QOS_1, False)
                 self.assertIsInstance(message, OutgoingApplicationMessage)
                 self.assertIsNotNone(message.publish_packet)
                 self.assertIsNotNone(message.puback_packet)
@@ -192,9 +186,7 @@ class ProtocolHandlerTest(unittest.TestCase):
                 self.handler = ProtocolHandler(self.plugin_manager)
                 self.handler.attach(self.session, reader_adapted, writer_adapted)
                 await self.start_handler(self.handler, self.session)
-                message = await self.handler.mqtt_publish(
-                    "/topic", b"test_data", QOS_2, False
-                )
+                message = await self.handler.mqtt_publish("/topic", b"test_data", QOS_2, False)
                 self.assertIsInstance(message, OutgoingApplicationMessage)
                 self.assertIsNotNone(message.publish_packet)
                 self.assertIsNone(message.puback_packet)
@@ -221,9 +213,7 @@ class ProtocolHandlerTest(unittest.TestCase):
 
     def test_receive_qos0(self):
         async def server_mock(reader, writer):
-            packet = PublishPacket.build(
-                "/topic", b"test_data", rand_packet_id(), False, QOS_0, False
-            )
+            packet = PublishPacket.build("/topic", b"test_data", rand_packet_id(), False, QOS_0, False)
             await packet.to_stream(writer)
 
         async def test_coro():
@@ -259,9 +249,7 @@ class ProtocolHandlerTest(unittest.TestCase):
     def test_receive_qos1(self):
         async def server_mock(reader, writer):
             try:
-                packet = PublishPacket.build(
-                    "/topic", b"test_data", rand_packet_id(), False, QOS_1, False
-                )
+                packet = PublishPacket.build("/topic", b"test_data", rand_packet_id(), False, QOS_1, False)
                 await packet.to_stream(writer)
                 puback = await PubackPacket.from_stream(reader)
                 self.assertIsNotNone(puback)
@@ -304,9 +292,7 @@ class ProtocolHandlerTest(unittest.TestCase):
     def test_receive_qos2(self):
         async def server_mock(reader, writer):
             try:
-                packet = PublishPacket.build(
-                    "/topic", b"test_data", rand_packet_id(), False, QOS_2, False
-                )
+                packet = PublishPacket.build("/topic", b"test_data", rand_packet_id(), False, QOS_2, False)
                 await packet.to_stream(writer)
                 pubrec = await PubrecPacket.from_stream(reader)
                 self.assertIsNotNone(pubrec)
@@ -402,9 +388,7 @@ class ProtocolHandlerTest(unittest.TestCase):
         self.handler = None
         self.session = Session()
         message = OutgoingApplicationMessage(1, "/topic", QOS_1, b"test_data", False)
-        message.publish_packet = PublishPacket.build(
-            "/topic", b"test_data", rand_packet_id(), False, QOS_1, False
-        )
+        message.publish_packet = PublishPacket.build("/topic", b"test_data", rand_packet_id(), False, QOS_1, False)
         self.session.inflight_out[1] = message
         future = asyncio.Future()
 
@@ -451,9 +435,7 @@ class ProtocolHandlerTest(unittest.TestCase):
         self.handler = None
         self.session = Session()
         message = OutgoingApplicationMessage(1, "/topic", QOS_2, b"test_data", False)
-        message.publish_packet = PublishPacket.build(
-            "/topic", b"test_data", rand_packet_id(), False, QOS_2, False
-        )
+        message.publish_packet = PublishPacket.build("/topic", b"test_data", rand_packet_id(), False, QOS_2, False)
         self.session.inflight_out[1] = message
         future = asyncio.Future()
 
