@@ -111,8 +111,8 @@ async def do_sub(client, arguments):
 
 
 def main(*args, **kwargs):
-    if sys.version_info[:2] < (3, 6):
-        logger.fatal("Error: Python 3.6+ is required")
+    if sys.version_info[:2] < (3, 9):
+        logger.fatal("Error: Python 3.9+ is required")
         sys.exit(-1)
 
     arguments = docopt(__doc__, version=amqtt.__version__)
