@@ -1,7 +1,0 @@
-[flake8]
-# disable checks already covered by other tools
-ignore =
-  E,
-  W,
-  F722,
-  F722
