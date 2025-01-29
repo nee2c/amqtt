@@ -1,3 +1,9 @@
 # See the file license.txt for copying permission.
+from importlib.metadata import version, PackageNotFoundError
 
-__version__ = "0.10.0"
+try:
+    __version__: str = version("amqtt")
+except PackageNotFoundError:  # pragma: no cover
+    __version__: str = "unknown"
+finally:
+    del version, PackageNotFoundError

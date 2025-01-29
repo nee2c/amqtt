@@ -18,6 +18,7 @@ def get_git_changeset():
     This value isn't guaranteed to be unique, but collisions are very unlikely,
     so it's sufficient for generating the development version numbers.
     """
+    warnings.warn("amqtt.version.get_git_changeset() is deprecated, use amqtt.__version__ instead")
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     git_log = subprocess.Popen(
         "git log --pretty=format:%ct --quiet -1 HEAD",
