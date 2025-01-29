@@ -107,3 +107,6 @@ tests/plugins/test.db
 
 # pycharm
 .idea/
+
+# junit report
+junit.xml

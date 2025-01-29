@@ -5,39 +5,34 @@ name: Python package
 
 on:
   push:
-    branches: [ master, v0.10.x ]
-  pull_request:
-    branches: [ master, v0.10.x ]
+    tags:
+      - v*.*.*
 
 jobs:
-  build:
-
+  release-build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        curl -sSL https://install.python-poetry.org | python -
-        $HOME/.local/bin/poetry install --extras ci
-    - name: Lint with flake8 and black
-      run: |
-        $HOME/.local/bin/poetry run flake8 tests/ amqtt/ --count --statistics --show-source
-        $HOME/.local/bin/poetry run black . --check
-    - name: Test with pytest
-      run: |
-        $HOME/.local/bin/poetry run  pytest --cov amqtt --cov tests --cov-report=term --cov-report=xml
+      - uses: actions/checkout@v4
 
-    - name: Upload coverage data to coveralls.io
-      run: |
-        $HOME/.local/bin/poetry run coveralls --service=github
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Build release distributions
+        run: |
+          python -m pip install build twine
+          python -m build
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dists
+          path: dist/
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python -m twine upload --repository pypi dist/*
